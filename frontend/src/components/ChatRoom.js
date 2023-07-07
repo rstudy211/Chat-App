@@ -12,9 +12,9 @@ const ChatRoom = () => {
     message: "",
   });
   useEffect(() => {
-    console.log("Stomp");
-    console.log(stompClient);
-    console.log(userData);
+    // console.log("Stomp");
+    // console.log(stompClient);
+    // console.log(userData);
   }, [userData]);
   const [publicChats, setPublicChats] = useState([]);
   const [privateChats, setPrivateChats] = useState(new Map());
@@ -29,21 +29,33 @@ const ChatRoom = () => {
     let Sock = new SockJS("http://localhost:9001/ws");
     stompClient = over(Sock);
     stompClient.connect({}, onConnnected, onError);
-    console.log("jskskdjsdjsdk");
-    console.log(stompClient);
-    console.log(privateChats);
+    // console.log("jskskdjsdjsdk");
+    // console.log(stompClient);
+    // console.log(privateChats);
   };
 
   const onConnnected = () => {
-    console.log(stompClient);
-    console.log("in on connected");
+    // console.log(stompClient);
+    // console.log("in on connected");
     setUserData({ ...userData, connected: true });
     stompClient.subscribe("/chatroom/public", onPublicMessageReceived);
     stompClient.subscribe(
       "/user/" + userData.username + "/private",
       onPrivateMessageReceived
     );
+    fetchPreviousMessages();
     userJoin();
+  };
+
+  const fetchPreviousMessages = () => {
+    fetch("http://localhost:9001/fetchPreviousMessages")
+      .then((response) => response.json())
+      .then((data) => {
+        setPublicChats(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching previous messages:", error);
+      });
   };
 
   const userJoin = () => {
@@ -52,16 +64,16 @@ const ChatRoom = () => {
       message: userData.message,
       status: "JOIN",
     };
-    console.log("stomclient in user Join");
-    console.log(stompClient);
+    // console.log("stomclient in user Join");
+    // console.log(stompClient);
     stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
-    console.log(stompClient);
+    // console.log(stompClient);
   };
 
   const onPublicMessageReceived = (payload) => {
     let payloadData = JSON.parse(payload.body);
-    console.log("payload dksjdjksj");
-    console.log(payload.body);
+    // console.log("payload dksjdjksj");
+    // console.log(payload.body);
     switch (payloadData.status) {
       case "JOIN":
         if (!privateChats.get(payloadData.sender)) {
@@ -70,9 +82,10 @@ const ChatRoom = () => {
         }
         break;
       case "MESSAGE":
-        publicChats.push(payloadData);
-        setPublicChats([...publicChats]);
-        console.log(publicChats);
+        // publicChats.push(payloadData);
+        // setPublicChats([...publicChats]);
+        fetchPreviousMessages();
+        // console.log(publicChats);
         break;
     }
   };
@@ -89,20 +102,20 @@ const ChatRoom = () => {
     }
   };
   const onError = (err) => {
-    console.log(err);
+    // console.log(err);
   };
 
   const sendPublicMessage = () => {
-    console.log("in send public");
-    console.log(stompClient);
+    // console.log("in send public");
+    // console.log(stompClient);
     if (stompClient) {
-      console.log("sjdkj");
+      // console.log("sjdkj");
       var chatMessage = {
         sender: userData.username,
         message: userData.message,
         status: "MESSAGE",
       };
-      console.log(chatMessage);
+      // console.log(chatMessage);
       stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
       setUserData({ ...userData, message: "" });
     }

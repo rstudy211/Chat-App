@@ -1,9 +1,6 @@
 package com.example.chatapp.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.awt.*;
 
@@ -11,6 +8,7 @@ import java.awt.*;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class Message {
     private String sender;
     private String receiver;
